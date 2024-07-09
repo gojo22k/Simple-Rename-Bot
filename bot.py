@@ -2,7 +2,9 @@ from pyrogram import Client
 from config import *
 import os
 from flask import Flask
-import threading
+
+# Create a Flask app
+app = Flask(__name__)
 
 class Bot(Client):
     if not os.path.isdir(DOWNLOAD_LOCATION):
@@ -30,23 +32,18 @@ class Bot(Client):
 
 bot = Bot()
 
-# Flask application for handling web traffic
-app = Flask(__name__)
-
+# Define a simple route for the Flask app
 @app.route('/')
 def home():
-    return "Bot is running!"
+    return "Bot is running!", 200
 
-# Run the Flask app in a separate thread
-def run_flask():
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
-
-# Start the bot and Flask app
 if __name__ == "__main__":
-    # Run Flask in a separate thread
-    flask_thread = threading.Thread(target=run_flask)
-    flask_thread.start()
+    from threading import Thread
 
-    # Run the bot
-    bot.run()
+    # Run the bot in a separate thread
+    bot_thread = Thread(target=bot.run)
+    bot_thread.start()
+
+    # Run the Flask web server
+    port = int(os.environ.get('PORT', 8443))  # Default to 8443 if PORT is not set
+    app.run(host='0.0.0.0', port=port)
